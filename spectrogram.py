@@ -78,7 +78,7 @@ class Spectrogram:
         self.spectrogram = librosa.stft(self.audio)
         self.db_spectrogram = librosa.amplitude_to_db(abs(self.spectrogram), ref=np.max)
 
-    def save_png(self, filename: str = "") -> None:
+    def save_png(self) -> None:
         """
         Saves the spectrogram plot as a PNG image.
 
@@ -100,11 +100,7 @@ class Spectrogram:
         self.__set_y_axis()
         self.__set_graphics()
 
-        plt.savefig(
-            filename
-            if filename != ""
-            else f"{self.audio_file.replace('.', '_')}_spectrogram.png"
-        )
+        plt.savefig(f"{self.audio_file.replace('.', '_')}_spectrogram.png")
         plt.clf()
 
     def __set_x_axis(self) -> None:
