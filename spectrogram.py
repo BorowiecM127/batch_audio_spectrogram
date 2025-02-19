@@ -10,6 +10,7 @@ The x-axis of the spectrogram is formatted to display time in minutes and second
 import librosa
 import numpy as np
 import matplotlib.pyplot as plt
+from metadata_parser import MetadataParser
 
 
 class Spectrogram:
@@ -53,6 +54,7 @@ class Spectrogram:
         self.sampling_rate: int | float = 0
         self.spectrogram: np.ndarray = np.array([])
         self.db_spectrogram: np.ndarray = np.array([])
+        self.metadata_parser = MetadataParser()
 
     def create(self, audio_file) -> None:
         """
@@ -93,10 +95,10 @@ class Spectrogram:
         """
         plt.figure(figsize=(14, 7))
 
-        self.__set_titles__()
-        self.__set_x_axis__()
-        self.__set_y_axis__()
-        self.__set_graphics__()
+        self.__set_titles()
+        self.__set_x_axis()
+        self.__set_y_axis()
+        self.__set_graphics()
 
         plt.savefig(
             filename
@@ -105,7 +107,7 @@ class Spectrogram:
         )
         plt.clf()
 
-    def __set_x_axis__(self) -> None:
+    def __set_x_axis(self) -> None:
         """
         Set the x-axis for the spectrogram plot.
 
@@ -126,7 +128,7 @@ class Spectrogram:
             ],
         )
 
-    def __set_y_axis__(self) -> None:
+    def __set_y_axis(self) -> None:
         """
         Set the y-axis for the spectrogram plot.
 
@@ -143,18 +145,22 @@ class Spectrogram:
         )
         plt.ylim(0, self.sampling_rate / 2)
 
-    def __set_graphics__(self) -> None:
+    def __set_graphics(self) -> None:
         """
-        Set the graphics for the spectrogram plot.
+        Set graphics for the spectrogram plot.
 
-        This function uses the `plt.imshow` function to display the spectrogram
-        as an image. The `origin="lower"` argument is used to ensure the origin
-        of the image is at the lower left corner of the plot. The `cmap="inferno"`
-        argument is used to select the color map, and the `aspect="auto"` argument
-        is used to ensure the aspect ratio of the image is automatically determined.
-        The `extent` argument is used to specify the extent of the image in data
-        coordinates. Finally, the `plt.colorbar` function is used to add a color bar
-        to the plot, with the format of the color bar labels specified as "%+2.0f dB".
+        This function sets the graphics for the spectrogram plot, including the
+        colormap, aspect ratio, and extent of the plot. It also adds a colorbar
+        with a format string of "%+2.0f dB" and uses the `plt.tight_layout` function
+        to ensure the plot is correctly sized.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
         """
         plt.imshow(
             self.db_spectrogram,
@@ -164,8 +170,9 @@ class Spectrogram:
             extent=(0, len(self.audio) / self.sampling_rate, 0, self.sampling_rate / 2),
         )
         plt.colorbar(format="%+2.0f dB")
+        plt.tight_layout(w_pad=0.5)
 
-    def __set_titles__(self) -> None:
+    def __set_titles(self) -> None:
         """
         Set titles for the spectrogram plot.
 
@@ -180,10 +187,11 @@ class Spectrogram:
         -------
         None
         """
+
         plt.xlabel("Time")
         plt.ylabel("Frequency (kHz)")
         plt.suptitle(f"'{self.audio_file}' spectrogram")
         plt.title(
-            f"Encoding: {1}, Bitrate: {2}, Sampling Rate: {3}, Channels: {4}",
+            self.metadata_parser.get_metadata(self.audio_file),
             fontsize=10,
         )
