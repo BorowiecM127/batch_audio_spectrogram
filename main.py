@@ -40,10 +40,16 @@ def main() -> None:
     if path.is_file():
         file_list.append(path)
     elif path.is_dir():
-        file_list = [p for p in path.rglob('*') if p.is_file() and p.suffix.lower() in (".m4a", ".mp3", ".flac", ".wav")]
+        file_list = [
+            p
+            for p in path.rglob("*")
+            if p.is_file() and p.suffix.lower() in (".m4a", ".mp3", ".flac", ".wav")
+        ]
 
-    for file in file_list:
-        print(f"Processing file: {file}")
+    print(f"Found {len(file_list)} files")
+
+    for i, file in enumerate(file_list):
+        print(f"Processing file ({i+1}/{len(file_list)}): {file}")
         spectrogram.create(file)
         spectrogram.save_png()
 
