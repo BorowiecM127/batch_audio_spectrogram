@@ -19,35 +19,6 @@ import pathlib
 from spectrogram import Spectrogram
 
 
-def get_file_list_from_path(path: pathlib.Path) -> list[pathlib.Path]:
-    """
-    Given a path to either a file or directory, return a list of file paths.
-
-    If the path is a file, the list will contain only the resolved path of the file.
-    If the path is a directory, the list will contain the resolved paths of all files
-    in the directory.
-
-    Parameters
-    ----------
-    path : pathlib.Path
-        The path to the file or directory.
-
-    Returns
-    -------
-    list[pathlib.Path]
-        A list of file paths.
-    """
-    file_list = []
-    if path.is_file():
-        file_list.append(path.resolve())
-    elif path.is_dir():
-        for file in path.iterdir():
-            if file.is_file():
-                file_list.append(file.resolve())
-
-    return file_list
-
-
 def main() -> None:
     """
     Main function to create and save a spectrogram image from an audio file.
@@ -64,13 +35,17 @@ def main() -> None:
 
     spectrogram = Spectrogram()
     path = pathlib.Path(args.path).resolve()
-    file_list = get_file_list_from_path(path)
+
+    file_list = []
+    if path.is_file():
+        file_list.append(path)
+    elif path.is_dir():
+        file_list = [p for p in path.rglob('*') if p.is_file() and p.suffix.lower() in (".m4a", ".mp3", ".flac", ".wav")]
 
     for file in file_list:
-        if file.suffix.lower() in (".m4a", ".mp3", ".flac", ".wav"):
-            print(f"Processing file: {file}")
-            spectrogram.create(file)
-            spectrogram.save_png()
+        print(f"Processing file: {file}")
+        spectrogram.create(file)
+        spectrogram.save_png()
 
 
 if __name__ == "__main__":
