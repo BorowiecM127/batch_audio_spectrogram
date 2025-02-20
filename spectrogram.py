@@ -7,10 +7,15 @@ The spectrogram is then converted to decibel units and visualized using `matplot
 The x-axis of the spectrogram is formatted to display time in minutes and seconds.
 """
 
+import pathlib
+import warnings
 import librosa
 import numpy as np
 import matplotlib.pyplot as plt
 from metadata_parser import MetadataParser
+
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 
 class Spectrogram:
@@ -22,7 +27,7 @@ class Spectrogram:
     for customizing the spectrogram plot.
 
     Attributes:
-        audio_file (str): The path to the audio file.
+        audio_file (pathlib.Path): The path to the audio file.
         audio (np.ndarray): The audio data.
         sampling_rate (int): The sampling rate of the audio data.
         spectrogram (np.ndarray): The spectrogram of the audio data.
@@ -49,7 +54,7 @@ class Spectrogram:
         -------
         None
         """
-        self.audio_file: str = ""
+        self.audio_file: pathlib.Path = pathlib.Path()
         self.audio: np.ndarray = np.array([])
         self.sampling_rate: int | float = 0
         self.spectrogram: np.ndarray = np.array([])
@@ -74,7 +79,7 @@ class Spectrogram:
         None
         """
         self.audio_file = audio_file
-        self.audio, self.sampling_rate = librosa.load(audio_file, sr=None)
+        self.audio, self.sampling_rate = librosa.load(str(self.audio_file), sr=None)
         self.spectrogram = librosa.stft(self.audio)
         self.db_spectrogram = librosa.amplitude_to_db(abs(self.spectrogram), ref=np.max)
 
@@ -100,8 +105,13 @@ class Spectrogram:
         self.__set_y_axis()
         self.__set_graphics()
 
-        plt.savefig(f"{self.audio_file.replace('.', '_')}_spectrogram.png")
-        plt.clf()
+        plt.savefig(
+            str(self.audio_file.parent / self.audio_file.stem)
+            + "_"
+            + self.audio_file.suffix[1:]
+            + "_spectrogram.png"
+        )
+        plt.close()
 
     def __set_x_axis(self) -> None:
         """
@@ -186,7 +196,7 @@ class Spectrogram:
 
         plt.xlabel("Time")
         plt.ylabel("Frequency (kHz)")
-        plt.suptitle(f"'{self.audio_file}' spectrogram")
+        plt.suptitle(f"'{self.audio_file.name}' spectrogram")
         plt.title(
             self.metadata_parser.get_metadata(self.audio_file),
             fontsize=10,
