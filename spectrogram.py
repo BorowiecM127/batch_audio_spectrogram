@@ -15,6 +15,8 @@ import matplotlib.pyplot as plt
 from metadata_parser import MetadataParser
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
 
 
 class Spectrogram:
