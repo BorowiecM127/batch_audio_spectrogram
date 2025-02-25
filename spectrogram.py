@@ -120,16 +120,10 @@ class Spectrogram:
         is used to ensure the x-axis extends from 0 seconds to the total duration
         of the audio file.
         """
-
-        plt.xticks(
-            np.arange(0, len(self.audio) / self.sampling_rate, 60).tolist()
-            + [len(self.audio) / self.sampling_rate],
-            [
-                f"{int(t/60):02d}:{int(t%60):02d}"
-                for t in np.arange(0, len(self.audio) / self.sampling_rate, 60).tolist()
-                + [len(self.audio) / self.sampling_rate]
-            ],
-        )
+        audio_duration_sec = len(self.audio) / self.sampling_rate
+        ticks = np.linspace(0, audio_duration_sec, num=15).tolist()
+        labels = [f"{int(t/60):02d}:{int(t%60):02d}" for t in ticks]
+        plt.xticks(ticks, labels)
 
     def __set_y_axis(self) -> None:
         """
@@ -140,13 +134,10 @@ class Spectrogram:
         formatted as the frequency value in Hz. The `plt.ylim` function is used
         to ensure the y-axis extends from 0 Hz to the Nyquist frequency.
         """
-        plt.yticks(
-            np.arange(0, self.sampling_rate / 2, 5000).tolist()
-            + [self.sampling_rate / 2],
-            [f"{f:.0f}" for f in np.arange(0, self.sampling_rate / 2000, 5)]
-            + [str(int(self.sampling_rate / 2000))],
-        )
-        plt.ylim(0, self.sampling_rate / 2)
+        nyquist_frequency = round(self.sampling_rate / 2, -3)
+        ticks = np.linspace(0, nyquist_frequency, num=12).tolist()
+        labels = [f"{t / 1000:.0f}" for t in ticks]
+        plt.yticks(ticks, labels)
 
     def __set_graphics(self) -> None:
         """
@@ -194,7 +185,7 @@ class Spectrogram:
         None
         """
 
-        plt.xlabel("Time")
+        plt.xlabel("Time (mm:ss)")
         plt.ylabel("Frequency (kHz)")
         plt.suptitle(f"'{self.audio_file.name}' spectrogram")
         plt.title(
