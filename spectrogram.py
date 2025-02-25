@@ -14,8 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from metadata_parser import MetadataParser
 
-warnings.filterwarnings("ignore", category=UserWarning)
-warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 
 class Spectrogram:
@@ -80,8 +79,6 @@ class Spectrogram:
         """
         self.audio_file = audio_file
         self.audio, self.sampling_rate = librosa.load(str(self.audio_file), sr=None)
-        self.spectrogram = librosa.stft(self.audio)
-        self.db_spectrogram = librosa.amplitude_to_db(abs(self.spectrogram), ref=np.max)
 
     def save_png(self) -> None:
         """
@@ -168,12 +165,15 @@ class Spectrogram:
         -------
         None
         """
-        plt.imshow(
-            self.db_spectrogram,
-            origin="lower",
+        plt.specgram(
+            self.audio,
+            Fs=self.sampling_rate,
             cmap="inferno",
-            aspect="auto",
-            extent=(0, len(self.audio) / self.sampling_rate, 0, self.sampling_rate / 2),
+            vmin=-120,
+            vmax=0,
+            NFFT=4096,
+            mode="magnitude",
+            scale="dB",
         )
         plt.colorbar(format="%+2.0f dB")
         plt.tight_layout(w_pad=0.5)
